@@ -1,4 +1,4 @@
-from streeamlit import st
+from streamlit import st
 import pandas as pd
 import numpy as np
 
