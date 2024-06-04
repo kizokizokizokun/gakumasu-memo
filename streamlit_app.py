@@ -1,13 +1,13 @@
-from streamlit import st
+import streamlit as st
 import pandas as pd
 import numpy as np
 
 # Vo, Da, Viの%を入力する欄
 st.write('Vo, Da, Viのレッスンボーナス%を入力してください')
 
-vo = st.number_input('Vo (%)', 0, 100, 30)
-da = st.number_input('Da (%)', 0, 100, 30)
-vi = st.number_input('Vi (%)', 0, 100, 30)
+vo = st.number_input("Vo (%)", min_value=0.0, max_value=100.0, value=30.0, step=0.1)
+da = st.number_input('Da (%)', min_value=0.0, max_value=100.0, value=30.0, step=0.1)
+vi = st.number_input('Vi (%)', min_value=0.0, max_value=100.0, value=30.0, step=0.1)
 
 st.write('レッスンの表')
 
@@ -29,7 +29,7 @@ df = pd.DataFrame(
     columns = ["レッスン回数", "ノーマル", "SP", "未選択"]
 ).set_index("レッスン回数")
 
-df_Da = df.copy(deep=True).drop(columns=["ノーマル", "SP", "未選択"])
+df_Da = df.copy(deep=True)
 df_Da["Da_N"] = df["ノーマル"] * (1 + da / 100)
 df_Da["Da_SP"] = df["SP"] * (1 + da / 100)
 df_Da["Vo"] = df["未選択"] * (1 + vo / 100)
@@ -47,35 +47,39 @@ df_Vi["Vi_SP"] = df["SP"] * (1 + vi / 100)
 df_Vi["Da"] = df["未選択"] * (1 + da / 100)
 df_Vi["Vo"] = df["未選択"] * (1 + vo / 100)
 
-# checkboxで選択肢を表示
-if st.checkbox('Voのみ表示'):
-    tgt = df_Vo
+# selectboxでVo, Da, Viのみ表示
+_o = st.selectbox('メインを選択', ["Vo", "Da", "Vi"], 0)
+if _o == "Vo":
+    tgt = df_Vo[["Vo_N", "Vo_SP", "Da", "Vi"]]
     col_N = ["Vo_N", "Da", "Vi"]
-
-if st.checkbox('Daのみ表示'):
-    tgt = df_Da
+    st.write(tgt)
+elif _o == "Da":
+    tgt = df_Da[["Da_N", "Da_SP", "Vo", "Vi"]]
     col_N = ["Vo", "Da_N", "Vi"]
-
-if st.checkbox('Viのみ表示'):
-    tgt = df_Vi
+    st.write(tgt)
+else:
+    tgt = df_Vi[['Vi_N', 'Vi_SP', 'Da', 'Vo']]
     col_N = ["Vo", "Da", "Vi_N"]
+    st.write(tgt)
 
-goal1 = [400 - tgt["追い込み"][i] for i in col_N]
-goal2 = [1000 - tgt["追い込み"][i] for i in col_N]
+goal1 = [400 - tgt[i]["追い込み"] for i in col_N]
+goal2 = [1000 - tgt[i]["追い込み"] for i in col_N]
 
 
-st.write(tgt)
+
 
 # 中間前追い込み後に400を越えるための条件
-st.write('中間前追い込み後に400を越えるための条件')
+st.write('### 中間前追い込み後に400を越えるための条件')
 st.write(pd.DataFrame(
     data = [goal1],
     columns = col_N
 ))
 
 # 期末前追い込み後に1000を越えるための条件
-st.write('期末前追い込み後に1000を越えるための条件')
+st.write('### 期末前追い込み後に1000を越えるための条件')
 st.write(pd.DataFrame(
     data = [goal2],
     columns = col_N
 ))
+
+# 実行
