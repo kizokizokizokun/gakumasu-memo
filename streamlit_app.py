@@ -170,7 +170,38 @@ chart2 = alt.Chart(df).mark_line().encode(
         axis=alt.Axis(tickCount=10, grid=True)),
     color=alt.value('blue')
 )
-chart = (chart1 + chart2).properties(
+
+# plt.text(3000, 20000, 'A+', color="tab:blue")
+# plt.text(3650, 20000, 'S', color="tab:orange")
+
+# textを追加
+txt_ap = alt.Chart(
+    pd.DataFrame({'x': [3000], 'y': [20000], 'text': ['A+']})
+).mark_text(
+    align='left',
+    baseline='middle',
+    color='red',
+    fontSize=20
+).encode(
+    x='x:Q',
+    y='y:Q',
+    text='text'
+)
+
+txt_s = alt.Chart(
+    pd.DataFrame({'x': [3650], 'y': [20000], 'text': ['S']})
+).mark_text(
+    align='left',
+    baseline='middle',
+    color='blue',
+    fontSize=20
+).encode(
+    x='x:Q',
+    y='y:Q',
+    text='text'
+)
+
+chart = (chart1 + chart2 + txt_ap + txt_s).properties(
     width=600,
     height=400,
     # limit
